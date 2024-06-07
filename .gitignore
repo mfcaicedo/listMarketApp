@@ -1,0 +1,62 @@
+node_modules
+npm-debug.log
+yarn-error.log
+
+# React Native Packager
+.expo/
+.expo-shared/
+.expo-go/
+
+# macOS
+.DS_Store
+
+# Android
+android/.gradle/
+android/app/build/
+android/local.properties
+android/.idea/
+android/*.iml
+android/captures/
+android/app/release/
+android/app/debug/
+android/app/.cxx/
+
+.env
+
+# Application Output
+*.apk
+*.aab
+
+# iOS
+ios/Pods/
+ios/build/
+ios/DerivedData/
+ios/.idea/
+ios/*.xcworkspace
+ios/*.xcodeproj
+ios/*.xcuserstate
+
+# Bundles
+*.jsbundle
+
+# Metro
+*.metro
+
+# Jest
+/coverage
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+fastlane/report.json
+
+# Miscellaneous
+*.log
+*.tmp
+*.lock
+
+# VS Code
+.vscode/
+.history/

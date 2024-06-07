@@ -10,7 +10,7 @@ import {
     Heading
 } from '@gluestack-ui/themed';
 import { config } from "@gluestack-ui/config";
-const logoUnicauca = require('../../../assets/logo-unicauca.png');
+const logoListMarket = require('../../../assets/logoListMarket2.png');
 
 const Welcome = ({ navigation }: { navigation: any }) => {
     return (
@@ -19,7 +19,7 @@ const Welcome = ({ navigation }: { navigation: any }) => {
                 <Center>
                     <Image
                         size="2xl" $xs-borderRadius="$sm"
-                        source={logoUnicauca}
+                        source={logoListMarket}
                         alt="Logo Unicauca"
                         mb="$12"
                         resizeMode='contain'
@@ -36,9 +36,9 @@ const Welcome = ({ navigation }: { navigation: any }) => {
                     </Box>
                 </Center>
                 <Button onPress={() => {
-                    navigation.navigate('Login')
+                    // navigation.navigate('Login')
                 }}
-                    size="md" mx='$5' variant="solid" bgColor='$primary500' action="primary" isDisabled={false} isFocusVisible={false} >
+                    size="md" mx='$5' variant="solid" bgColor='#00293F' action="primary" isDisabled={false} isFocusVisible={false} >
                     <ButtonText>Continuar</ButtonText>
                 </Button>
             </Box>

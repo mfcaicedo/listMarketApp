@@ -10,6 +10,8 @@ import {
     Heading
 } from '@gluestack-ui/themed';
 import { config } from "@gluestack-ui/config";
+
+
 const logoListMarket = require('../../../assets/logoListMarket2.png');
 
 const Welcome = ({ navigation }: { navigation: any }) => {
@@ -36,7 +38,7 @@ const Welcome = ({ navigation }: { navigation: any }) => {
                     </Box>
                 </Center>
                 <Button onPress={() => {
-                    // navigation.navigate('Login')
+                     navigation.navigate('Login')
                 }}
                     size="md" mx='$5' variant="solid" bgColor='#00293F' action="primary" isDisabled={false} isFocusVisible={false} >
                     <ButtonText>Continuar</ButtonText>

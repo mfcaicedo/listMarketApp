@@ -4,6 +4,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Welcome from '../screens/welcome/Welcome';
 import { Button, ButtonIcon, ButtonText, GluestackUIProvider, MenuIcon, useTheme } from '@gluestack-ui/themed';
 import { config } from '@gluestack-ui/config';
+import Login from '../screens/login/Login';
+import { S } from '@expo/html-elements';
+import Index from '../screens/index/Index';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +38,17 @@ const NavigationApp = () => {
                     component={Welcome}
                     options={{ title: '', headerShown: false }}
                 />
+                <Stack.Screen
+                    name="Login"
+                    component={Login}
+                    options={{ title: 'Login', headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Home"
+                    component={Index}
+                    options={{ title: 'Home', headerShown: false}}
+                />
+
             </Stack.Navigator>
         </NavigationContainer>
     );

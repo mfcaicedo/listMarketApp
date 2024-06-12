@@ -33,12 +33,12 @@ const Welcome = ({ navigation }: { navigation: any }) => {
                             Bienvenido a ListMarket
                         </Heading>
                         <Text size="xl">
-                            La mejor App para hacer tus listas de compras!
+                            La mejor App para hacer tu lista de compras!
                         </Text>
                     </Box>
                 </Center>
                 <Button onPress={() => {
-                     navigation.navigate('Login')
+                    navigation.navigate('Login')
                 }}
                     size="md" mx='$5' variant="solid" bgColor='#00293F' action="primary" isDisabled={false} isFocusVisible={false} >
                     <ButtonText>Continuar</ButtonText>

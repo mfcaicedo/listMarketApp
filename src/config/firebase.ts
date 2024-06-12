@@ -4,7 +4,6 @@ import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID, MEASUREMENT_ID} from '@env';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { A } from '@expo/html-elements';
 
 const firebaseConfig = {
     apiKey: API_KEY,

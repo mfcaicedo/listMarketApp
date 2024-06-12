@@ -7,6 +7,7 @@ import {
   Button,
   ButtonText,
   HStack,
+  VStack,
   Modal,
   ModalContent,
   ModalHeader,
@@ -18,6 +19,18 @@ import {
   SelectTrigger,
   SelectContent,
   SelectItem,
+  SelectInput,
+  SelectIcon,
+  Icon,
+  SelectPortal,
+  SelectDragIndicatorWrapper,
+  SelectDragIndicator,
+  ChevronDownIcon,
+  SelectBackdrop,
+  Heading,
+  AddIcon,
+  ButtonIcon,
+  ScrollView,
 } from '@gluestack-ui/themed';
 import { config } from "@gluestack-ui/config";
 import { Alert, TouchableOpacity, FlatList, View } from 'react-native';
@@ -43,17 +56,17 @@ const Index = ({ navigation }: { navigation: any }) => {
   const [newSiteName, setNewSiteName] = useState('');
 
   useEffect(() => {
-    fetchItems();
-    fetchSites();
+    getItems();
+    getSites();
   }, []);
 
-  const fetchItems = async () => {
+  const getItems = async () => {
     const querySnapshot = await getDocs(collection(FIREBASE_DB, 'items'));
     const itemsList = querySnapshot.docs.map(doc => doc.data() as Item);
     setItems(itemsList);
   };
 
-  const fetchSites = async () => {
+  const getSites = async () => {
     const querySnapshot = await getDocs(collection(FIREBASE_DB, 'sites'));
     const sitesList = querySnapshot.docs.map(doc => doc.data() as Site);
     console.log("Sitios:", sitesList);
@@ -63,7 +76,7 @@ const Index = ({ navigation }: { navigation: any }) => {
   const addItem = async () => {
     if (newItem && selectedSite) {
       await addDoc(collection(FIREBASE_DB, 'items'), { name: newItem, site: selectedSite });
-      fetchItems();
+      // getItems();
       setModalVisible(false);
       setNewItem('');
       setSelectedSite('');
@@ -75,7 +88,7 @@ const Index = ({ navigation }: { navigation: any }) => {
   const addSite = async () => {
     if (newSiteName) {
       await addDoc(collection(FIREBASE_DB, 'sites'), { name: newSiteName });
-      fetchSites();
+      // getSites();
       setSiteModalVisible(false);
       setNewSiteName('');
     } else {
@@ -85,8 +98,31 @@ const Index = ({ navigation }: { navigation: any }) => {
 
   return (
     <GluestackUIProvider config={config}>
-      <Box flex={1} p={4}>
-        <FlatList
+      <Box p='$1.5'>
+      <Heading>Tu lista de compras!</Heading>
+      </Box>
+      <ScrollView h="$80" w="$full" pl='$1.5' pr='$1.5'>
+        <VStack flex={1}>
+          <HStack space="xl" justifyContent='space-between' reversed={false}>
+            <Text color='$black' bold>Nombre</Text>
+            <Text color='$black' bold>Sitio</Text>
+            <Text color='$black' bold>Acciones</Text>
+          </HStack>
+        </VStack>
+        <VStack flex={1}>
+          {items.map((item, index) => (
+            <HStack key={index} space="xl" justifyContent='space-between' reversed={false}>
+              <Text>{item.name}</Text>
+              <Text>{item.sitio}</Text>
+              <TouchableOpacity onPress={() => console.log('edit')}>
+                <Text>Editar</Text>
+              </TouchableOpacity>
+            </HStack>
+          ))}
+        </VStack>
+      </ScrollView>
+      <Box>
+        {/* <FlatList
           data={items}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
@@ -95,55 +131,50 @@ const Index = ({ navigation }: { navigation: any }) => {
               <Text>{item.site}</Text>
             </HStack>
           )}
-        />
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Center
-            position="absolute"
-            right={4}
-            bottom={4}
-            bg="#000"
-            width={56}
-            height={56}
-            borderRadius={28}
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Text style={{ color: '#fff', fontSize: 24 }}>+</Text>
-          </Center>
-        </TouchableOpacity>
+        /> */}
+        <Button position='absolute' m='$1.5' right={1} bottom={1} size="xl" w='$16' h='$16' rounded='$full'
+          variant="solid" action="primary" isDisabled={false} isFocusVisible={true}
+          onPress={() => setModalVisible(true)} >
+          <ButtonIcon as={AddIcon} />
+        </Button>
 
         <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
           <ModalContent>
             <ModalHeader>
-              <Text>Nuevo producto</Text>
+              <Heading>Nuevo producto</Heading>
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <Box mb={3}>
                 <Input variant="underlined">
                   <InputField
-                    placeholder="Aquí el nombre del producto"
+                    placeholder="Nombre del producto"
                     value={newItem}
                     onChangeText={setNewItem}
                   />
                 </Input>
               </Box>
               <Box mb={3}>
-                <Text>Seleccionar sitio:</Text>
-                <Select
-                  selectedValue={selectedSite}
-                  onValueChange={(value) => setSelectedSite(value)}
-                  placeholder="Seleccionar sitio..."
-                >
-                  <SelectTrigger>
+                <Select>
+                  <SelectTrigger variant="underlined" size="md" >
+                    <SelectInput placeholder="Seleccionar sitio" />
+                    <SelectIcon>
+                      <Icon as={ChevronDownIcon} />
+                    </SelectIcon>
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectBackdrop />
                     <SelectContent>
+                      <SelectDragIndicatorWrapper>
+                        <SelectDragIndicator />
+                      </SelectDragIndicatorWrapper>
                       {sites.map((site, index) => (
                         <SelectItem key={index} value={site.name} label={site.name}>
                           <Text>{site.name}</Text>
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </SelectTrigger>
+                  </SelectPortal>
                 </Select>
                 <Button onPress={() => setSiteModalVisible(true)} mt={2}>
                   <ButtonText>Añadir Sitio</ButtonText>
@@ -164,7 +195,7 @@ const Index = ({ navigation }: { navigation: any }) => {
         <Modal isOpen={siteModalVisible} onClose={() => setSiteModalVisible(false)}>
           <ModalContent>
             <ModalHeader>
-              <Text>Agregar Sitio</Text>
+              <Heading>Añadir Sitio</Heading>
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody>

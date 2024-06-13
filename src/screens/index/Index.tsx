@@ -40,7 +40,7 @@ import { config } from "@gluestack-ui/config";
 import { Alert, TouchableOpacity, FlatList, View, } from 'react-native';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
 import { FIREBASE_DB } from '../../config/firebase';
-import { collection, addDoc, getDocs, setDoc, doc, onSnapshot, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, setDoc, doc, onSnapshot, deleteDoc, query, orderBy, limit } from 'firebase/firestore';
 import { Product, ProductStatus, ShoppingList, Site } from '../../models/shopping.list.model';
 
 const Index = ({ navigation }: { navigation: any }) => {
@@ -70,7 +70,13 @@ const Index = ({ navigation }: { navigation: any }) => {
     //Cambio fijo: 
     //Traer las listas por fecha mas reciente y si se puede limitar a 1 (LIMIT 1)
 
-    onSnapshot(collection(FIREBASE_DB, 'shoppingLists'), (snapshot) => {
+    const shoppingListsQuery = query(
+      collection(FIREBASE_DB, 'shoppingLists'),
+      orderBy('createAt', 'desc'),
+      limit(1)
+    );
+
+    onSnapshot(shoppingListsQuery, (snapshot) => {
       const shoppingList = snapshot.docs.map(doc => doc.data() as ShoppingList);
       // const shoppingListOrder = shoppingList[0].products.sort((b, a) => a.status.localeCompare(b.status));
       // shoppingList[0].products = shoppingListOrder;
@@ -215,16 +221,39 @@ const Index = ({ navigation }: { navigation: any }) => {
 
   };
 
-  const cloneShppingList = async () => {
+  const cloneShoppingList = async () => {
 
     console.log("clonar lista de compras");
 
-    //1. Obtener la lista de compras
-
-    //2. Crear el objeto con su nuevo id y su nueva fecha 
-
-    //3. Crear una nueva lista de compras con el objeto anterior en firebase 
-
+    if (shoppingList.length > 0) {
+      const currentShoppingList = shoppingList[0];
+  
+      // 1: Obtener la lista de compras
+      const querySnapshot = await getDocs(collection(FIREBASE_DB, 'shoppingLists'));
+      const shoppingLists = querySnapshot.docs.map(doc => doc.data() as ShoppingList);
+  
+      // 2: Crear el objeto con su nuevo ID y su nueva fecha
+      const newShoppingListId = doc(collection(FIREBASE_DB, 'shoppingLists')).id;
+      const clonedProducts = currentShoppingList.products.map(product => ({
+        ...product,
+        id: doc(collection(FIREBASE_DB, 'products')).id,
+        createAt: new Date().toISOString(),
+      }));
+  
+      const clonedShoppingList: ShoppingList = {
+        ...currentShoppingList,
+        id: newShoppingListId,
+        products: clonedProducts,
+        createAt: new Date().toISOString(),
+      };
+  
+      // 3: Crear una nueva lista de compras con el objeto anterior en Firebase
+      await setDoc(doc(FIREBASE_DB, 'shoppingLists', newShoppingListId), clonedShoppingList);
+  
+      Alert.alert('Éxito', 'La lista de compras ha sido clonada.');
+    } else {
+      Alert.alert('Error', 'No hay lista de compras para clonar.');
+    }
 
   };
 
@@ -241,6 +270,11 @@ const Index = ({ navigation }: { navigation: any }) => {
         <Box p='$1.5'>
           <Heading>Tu lista de compras!</Heading>
         </Box>
+        <HStack space="md" justifyContent='flex-end' pl='$1.5' pr='$1.5' mb='$2'>
+        <Button variant="solid" action="primary" onPress={cloneShoppingList}>
+          <ButtonText>Clonar Lista</ButtonText>
+        </Button>
+      </HStack>
         <ScrollView h="$80" w="$full" pl='$1.5' pr='$1.5'>
           <VStack flex={1} mb='$1.5'>
             <HStack space="xl" justifyContent='space-between' reversed={false}>

@@ -67,9 +67,6 @@ const Index = ({ navigation }: { navigation: any }) => {
 
   const getShoppingList = async () => {
 
-    //Cambio fijo: 
-    //Traer las listas por fecha mas reciente y si se puede limitar a 1 (LIMIT 1)
-
     const shoppingListsQuery = query(
       collection(FIREBASE_DB, 'shoppingLists'),
       orderBy('createAt', 'desc'),
@@ -78,8 +75,6 @@ const Index = ({ navigation }: { navigation: any }) => {
 
     onSnapshot(shoppingListsQuery, (snapshot) => {
       const shoppingList = snapshot.docs.map(doc => doc.data() as ShoppingList);
-      // const shoppingListOrder = shoppingList[0].products.sort((b, a) => a.status.localeCompare(b.status));
-      // shoppingList[0].products = shoppingListOrder;
       setShoppingList(shoppingList);
     });
 
@@ -171,8 +166,6 @@ const Index = ({ navigation }: { navigation: any }) => {
   };
 
   const updateProduct = async () => {
-    // console.log("updateProduct", product, shoppingList, index);
-    console.log("updateProduct: ", newItem, newItemId, selectedSite);
 
     //busco el producto y actualizo el nombre y el sitio si ha cambiado
     const product = shoppingList[0].products.find(product => product.id === newItemId);
@@ -223,15 +216,13 @@ const Index = ({ navigation }: { navigation: any }) => {
 
   const cloneShoppingList = async () => {
 
-    console.log("clonar lista de compras");
-
     if (shoppingList.length > 0) {
       const currentShoppingList = shoppingList[0];
-  
+
       // 1: Obtener la lista de compras
       const querySnapshot = await getDocs(collection(FIREBASE_DB, 'shoppingLists'));
       const shoppingLists = querySnapshot.docs.map(doc => doc.data() as ShoppingList);
-  
+
       // 2: Crear el objeto con su nuevo ID y su nueva fecha
       const newShoppingListId = doc(collection(FIREBASE_DB, 'shoppingLists')).id;
       const clonedProducts = currentShoppingList.products.map(product => ({
@@ -239,17 +230,17 @@ const Index = ({ navigation }: { navigation: any }) => {
         id: doc(collection(FIREBASE_DB, 'products')).id,
         createAt: new Date().toISOString(),
       }));
-  
+
       const clonedShoppingList: ShoppingList = {
         ...currentShoppingList,
         id: newShoppingListId,
         products: clonedProducts,
         createAt: new Date().toISOString(),
       };
-  
+
       // 3: Crear una nueva lista de compras con el objeto anterior en Firebase
       await setDoc(doc(FIREBASE_DB, 'shoppingLists', newShoppingListId), clonedShoppingList);
-  
+
       Alert.alert('Éxito', 'La lista de compras ha sido clonada.');
     } else {
       Alert.alert('Error', 'No hay lista de compras para clonar.');
@@ -271,11 +262,11 @@ const Index = ({ navigation }: { navigation: any }) => {
           <Heading>Tu lista de compras!</Heading>
         </Box>
         <HStack space="md" justifyContent='flex-end' pl='$1.5' pr='$1.5' mb='$2'>
-        <Button variant="solid" action="primary" onPress={cloneShoppingList}>
-          <ButtonText>Clonar Lista</ButtonText>
-        </Button>
-      </HStack>
-        <ScrollView h="$80" w="$full" pl='$1.5' pr='$1.5'>
+          <Button variant="solid" bgColor='#00293F' action="primary" onPress={cloneShoppingList}>
+            <ButtonText>Clonar Lista</ButtonText>
+          </Button>
+        </HStack>
+        <ScrollView h="$full" w="$full" pl='$1.5' pr='$1.5'>
           <VStack flex={1} mb='$1.5'>
             <HStack space="xl" justifyContent='space-between' reversed={false}>
               <Text color='$black' bold>Nombre</Text>
@@ -294,8 +285,7 @@ const Index = ({ navigation }: { navigation: any }) => {
 
                 <TouchableOpacity key={index} onPress={() => handleTap(product, shoppingList[0], index)}>
                   <Box bg={product.status === ProductStatus.BOUGHT ? '$blueGray300' : '$green200'} flexDirection='row'
-                    justifyContent='space-between'
-                    py='$4' mb='$1.5' rounded='$md'>
+                    justifyContent='space-between' py='$4' pl='$1' mb='$1.5' rounded='$md'>
                     <Box w='$40'>
                       <Text strikeThrough={product.status === ProductStatus.BOUGHT ? true : false}>
                         {product.name}
@@ -330,7 +320,7 @@ const Index = ({ navigation }: { navigation: any }) => {
         </ScrollView>
         <Box>
           <Button position='absolute' m='$1.5' right={1} bottom={1} size="xl" w='$16' h='$16' rounded='$full'
-            variant="solid" action="primary" isDisabled={false} isFocusVisible={true}
+            variant="solid" bgColor='#00293F' action="primary" isDisabled={false} isFocusVisible={true}
             onPress={() => setModalVisible(true)} >
             <ButtonIcon as={AddIcon} />
           </Button>
@@ -373,15 +363,24 @@ const Index = ({ navigation }: { navigation: any }) => {
                       </SelectContent>
                     </SelectPortal>
                   </Select>
-                  <Button w='$10' h='$10' rounded='$full' variant="solid" action="primary" size='md' onPress={() => setSiteModalVisible(true)} mt={2}>
+                  <Button w='$10' h='$10' bgColor='#00293F' rounded='$full' variant="solid" action="primary" size='md' onPress={() => setSiteModalVisible(true)} mt={2}>
                     <ButtonIcon as={AddIcon} />
                   </Button>
                 </Box>
                 <HStack space="md">
-                  <Button variant='solid' action='primary' onPress={addProductShoppingList} flex={1}>
+                  <Button variant='solid' bgColor='#00293F' action='primary' flex={1}
+                    onPress={addProductShoppingList} isDisabled={
+                      newItem === '' || selectedSite === '' ? true : false
+
+                    } >
                     <ButtonText>Guardar</ButtonText>
                   </Button>
-                  <Button variant="outline" action="secondary" onPress={() => setModalVisible(false)} flex={1}>
+                  <Button variant="outline" flex={1} action="secondary" onPress={() => {
+                    setModalVisible(false)
+                    setNewItem('')
+                    setNewItemId('')
+                    setSelectedSite('')
+                  }} >
                     <ButtonText>Cancelar</ButtonText>
                   </Button>
                 </HStack>
@@ -432,10 +431,15 @@ const Index = ({ navigation }: { navigation: any }) => {
                   </Button>
                 </Box>
                 <HStack space="md">
-                  <Button variant='solid' action='primary' onPress={() => updateProduct()} flex={1}>
+                  <Button variant='solid' action='primary' bgColor='#00293F' onPress={() => updateProduct()} flex={1}>
                     <ButtonText>Guardar</ButtonText>
                   </Button>
-                  <Button variant="outline" action="secondary" onPress={() => setModalVisibleUpdate(false)} flex={1}>
+                  <Button variant="outline" action="secondary" flex={1} onPress={() => {
+                    setNewItem('')
+                    setNewItemId('')
+                    setSelectedSite('')
+                    setModalVisibleUpdate(false)
+                  }} >
                     <ButtonText>Cancelar</ButtonText>
                   </Button>
                 </HStack>
@@ -460,10 +464,14 @@ const Index = ({ navigation }: { navigation: any }) => {
                   </Input>
                 </Box>
                 <HStack space="md">
-                  <Button flex={1} variant='solid' action='primary' size='md' onPress={addSite} mb={3}>
+                  <Button flex={1} variant='solid' bgColor='#00293F' action='primary' size='md' onPress={addSite} mb={3}
+                    isDisabled={newSiteName === '' ? true : false}>
                     <ButtonText>Guardar</ButtonText>
                   </Button>
-                  <Button flex={1} variant="outline" action="secondary" onPress={() => setSiteModalVisible(false)}>
+                  <Button flex={1} variant="outline" action="secondary" onPress={() => {
+                    setNewSiteName('')
+                    setSiteModalVisible(false)
+                  }}>
                     <ButtonText>Cancelar</ButtonText>
                   </Button>
                 </HStack>

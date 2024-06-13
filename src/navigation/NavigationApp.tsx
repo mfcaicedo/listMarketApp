@@ -32,7 +32,7 @@ const NavigationApp = () => {
 
     return (
         <NavigationContainer independent={true}>
-            <Stack.Navigator initialRouteName='Home'>
+            <Stack.Navigator initialRouteName='Welcome'>
                 <Stack.Screen
                     name="Welcome"
                     component={Welcome}
@@ -46,7 +46,7 @@ const NavigationApp = () => {
                 <Stack.Screen
                     name="Home"
                     component={Index}
-                    options={{ title: 'Compras', headerBackVisible: false, headerBackTitle: false}}
+                    options={{ title: 'Compras', headerBackVisible: false, headerBackTitle: ''}}
                 />
 
             </Stack.Navigator>

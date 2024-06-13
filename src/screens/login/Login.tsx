@@ -42,7 +42,6 @@ const Login = ({ navigation }: { navigation: any }) => {
             Alert.alert('Bienvenido', 'Inicio de sesión exitoso');
             console.log(user);
         } catch (error) {
-            
             Alert.alert('Error al iniciar sesión');
             console.log(error);
         }
@@ -122,7 +121,7 @@ const Login = ({ navigation }: { navigation: any }) => {
                         size="md"
                         mt="$2"
                         variant="solid"
-                        bgColor="$primary500"
+                        bgColor='#00293F'
                         action="primary"
                         isDisabled={false}
                         isFocusVisible={false}>

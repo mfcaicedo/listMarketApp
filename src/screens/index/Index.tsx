@@ -40,13 +40,15 @@ import { config } from "@gluestack-ui/config";
 import { Alert, TouchableOpacity, FlatList, View, } from 'react-native';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
 import { FIREBASE_DB } from '../../config/firebase';
-import { collection, addDoc, getDocs, setDoc, doc, onSnapshot } from 'firebase/firestore';
+import { collection, addDoc, getDocs, setDoc, doc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { Product, ProductStatus, ShoppingList, Site } from '../../models/shopping.list.model';
 
 const Index = ({ navigation }: { navigation: any }) => {
   const [items, setItems] = useState<Product[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisibleUpdate, setModalVisibleUpdate] = useState(false);
   const [newItem, setNewItem] = useState('');
+  const [newItemId, setNewItemId] = useState('');
   const [selectedSite, setSelectedSite] = useState('');
   const [sites, setSites] = useState<Site[]>([]);
   const [siteModalVisible, setSiteModalVisible] = useState(false);
@@ -64,6 +66,9 @@ const Index = ({ navigation }: { navigation: any }) => {
   };
 
   const getShoppingList = async () => {
+
+    //Cambio fijo: 
+    //Traer las listas por fecha mas reciente y si se puede limitar a 1 (LIMIT 1)
 
     onSnapshot(collection(FIREBASE_DB, 'shoppingLists'), (snapshot) => {
       const shoppingList = snapshot.docs.map(doc => doc.data() as ShoppingList);
@@ -159,13 +164,69 @@ const Index = ({ navigation }: { navigation: any }) => {
     lastTapTimeRef.current = now;
   };
 
-  const updateProduct = async (product: Product, shoppingList: ShoppingList, index: number) => {
-    console.log("updateProduct", product, shoppingList, index);
+  const updateProduct = async () => {
+    // console.log("updateProduct", product, shoppingList, index);
+    console.log("updateProduct: ", newItem, newItemId, selectedSite);
+
+    //busco el producto y actualizo el nombre y el sitio si ha cambiado
+    const product = shoppingList[0].products.find(product => product.id === newItemId);
+
+    if (product) {
+      product.name = newItem.trim();
+      product.site = sites.find(site => site.name === selectedSite) as Site;
+      await setDoc(doc(FIREBASE_DB, 'products', product.id), product, { merge: true });
+
+      //actualizo la lista de compras
+      const shoppingListProducts = shoppingList[0].products;
+      const index = shoppingListProducts.findIndex(product => product.id === newItemId);
+      shoppingListProducts[index] = product;
+
+      await setDoc(doc(FIREBASE_DB, 'shoppingLists', shoppingList[0].id), { products: shoppingListProducts },
+        { merge: true });
+
+      setModalVisibleUpdate(false);
+      setNewItem('');
+      setNewItemId('');
+      setSelectedSite('');
+    } else {
+      Alert.alert('Error', 'No se ha encontrado el producto a actualizar.');
+    }
+
   }
 
-  const handleDelete = async (product: Product, shoppingList: ShoppingList, index: number) => {
-    console.log("elemento a eliminar", product, shoppingList, index);
-  }
+  const handleDelete = async (product: Product, currentShoppingList: ShoppingList, index: number) => {
+
+    //Solo se puede eliminar si el producto está pendiente de compra
+    if (product.status === ProductStatus.PENDING) {
+
+      try {
+        await deleteDoc(doc(FIREBASE_DB, 'products', product.id));
+
+        const shoppingListProducts = currentShoppingList.products.filter((_, i) => i !== index);
+        await setDoc(doc(FIREBASE_DB, 'shoppingLists', currentShoppingList.id), { products: shoppingListProducts }, { merge: true });
+
+      } catch (error) {
+        console.error("Error eliminando el producto: ", error);
+      }
+
+    } else {
+      Alert.alert('Error', 'Solo se puede eliminar productos pendientes de compra.');
+    }
+
+  };
+
+  cloneShppingList = async () => {
+
+    console.log("clonar lista de compras");
+
+    //1. Obtener la lista de compras
+
+    //2. Crear el objeto con su nuevo id y su nueva fecha 
+
+    //3. Crear una nueva lista de compras con el objeto anterior en firebase 
+
+
+  };
 
   useEffect(() => {
 
@@ -215,7 +276,14 @@ const Index = ({ navigation }: { navigation: any }) => {
                       {product.status === ProductStatus.BOUGHT ? (
                         <Icon color='$green500' as={CheckIcon} size="xl" />
                       ) : (
-                        <TouchableOpacity onPress={() => updateProduct(product, shoppingList, index)}>
+                        <TouchableOpacity onPress={() => {
+                          setModalVisibleUpdate(true)
+                          setNewItem(product.name)
+                          setNewItemId(product.id)
+                          setSelectedSite(product.site.name)
+                        }
+                          // updateProduct(product, shoppingList[0], index)
+                        }>
                           <Icon as={EditIcon} size="xl" />
                         </TouchableOpacity>
                       )}
@@ -280,6 +348,60 @@ const Index = ({ navigation }: { navigation: any }) => {
                     <ButtonText>Guardar</ButtonText>
                   </Button>
                   <Button variant="outline" action="secondary" onPress={() => setModalVisible(false)} flex={1}>
+                    <ButtonText>Cancelar</ButtonText>
+                  </Button>
+                </HStack>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+
+          <Modal isOpen={modalVisibleUpdate} onClose={() => setModalVisibleUpdate(false)}>
+            <ModalContent>
+              <ModalHeader>
+                <Heading>Actualiza el producto seleccionado</Heading>
+              </ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Box mb={3}>
+                  <Input variant="underlined">
+                    <InputField
+                      placeholder="Nombre del producto"
+                      value={newItem}
+                      onChangeText={setNewItem}
+                    />
+                  </Input>
+                </Box>
+                <Box mb='$1' justifyContent='space-between' flexDirection='row' >
+                  <Select w='$56' onValueChange={(value) => setSelectedSite(value)} initialLabel={selectedSite}>
+                    <SelectTrigger variant="underlined" size="md" >
+                      <SelectInput placeholder="Seleccionar sitio" />
+                      <SelectIcon>
+                        <Icon as={ChevronDownIcon} />
+                      </SelectIcon>
+                    </SelectTrigger>
+                    <SelectPortal>
+                      <SelectBackdrop />
+                      <SelectContent>
+                        <SelectDragIndicatorWrapper>
+                          <SelectDragIndicator />
+                        </SelectDragIndicatorWrapper>
+                        {sites.map((site, index) => (
+                          <SelectItem key={index} value={site.name} label={site.name}>
+                            <Text>{site.name}</Text>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </SelectPortal>
+                  </Select>
+                  <Button w='$10' h='$10' rounded='$full' variant="solid" action="primary" size='md' onPress={() => setSiteModalVisible(true)} mt={2}>
+                    <ButtonIcon as={AddIcon} />
+                  </Button>
+                </Box>
+                <HStack space="md">
+                  <Button variant='solid' action='primary' onPress={() => updateProduct()} flex={1}>
+                    <ButtonText>Guardar</ButtonText>
+                  </Button>
+                  <Button variant="outline" action="secondary" onPress={() => setModalVisibleUpdate(false)} flex={1}>
                     <ButtonText>Cancelar</ButtonText>
                   </Button>
                 </HStack>

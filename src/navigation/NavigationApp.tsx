@@ -46,7 +46,7 @@ const NavigationApp = () => {
                 <Stack.Screen
                     name="Home"
                     component={Index}
-                    options={{ title: 'Compras', headerBackVisible: false, headerBackTitle: false}}
+                    options={{ title: 'Compras', headerBackVisible: false}}
                 />
 
             </Stack.Navigator>

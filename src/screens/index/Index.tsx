@@ -35,11 +35,12 @@ import {
 import { config } from "@gluestack-ui/config";
 import { Alert, TouchableOpacity, FlatList, View } from 'react-native';
 import { FIREBASE_DB } from '../../config/firebase';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, getDocs, Timestamp } from 'firebase/firestore';
 
 interface Item {
   name: string;
   site: string;
+  createdAt?: Timestamp;
 }
 
 interface Site {
@@ -75,8 +76,13 @@ const Index = ({ navigation }: { navigation: any }) => {
 
   const addItem = async () => {
     if (newItem && selectedSite) {
-      await addDoc(collection(FIREBASE_DB, 'items'), { name: newItem, site: selectedSite });
-      // getItems();
+      const newItemData = {
+        name: newItem,
+        site: selectedSite,
+        createdAt: Timestamp.now()
+      };
+      await addDoc(collection(FIREBASE_DB, 'items'), newItemData);
+      getItems();
       setModalVisible(false);
       setNewItem('');
       setSelectedSite('');
@@ -88,7 +94,7 @@ const Index = ({ navigation }: { navigation: any }) => {
   const addSite = async () => {
     if (newSiteName) {
       await addDoc(collection(FIREBASE_DB, 'sites'), { name: newSiteName });
-      // getSites();
+      getSites();
       setSiteModalVisible(false);
       setNewSiteName('');
     } else {
@@ -106,6 +112,7 @@ const Index = ({ navigation }: { navigation: any }) => {
           <HStack space="xl" justifyContent='space-between' reversed={false}>
             <Text color='$black' bold>Nombre</Text>
             <Text color='$black' bold>Sitio</Text>
+            <Text color='$black' bold>Creado</Text>
             <Text color='$black' bold>Acciones</Text>
           </HStack>
         </VStack>
@@ -113,7 +120,8 @@ const Index = ({ navigation }: { navigation: any }) => {
           {items.map((item, index) => (
             <HStack key={index} space="xl" justifyContent='space-between' reversed={false}>
               <Text>{item.name}</Text>
-              <Text>{item.sitio}</Text>
+              <Text>{item.site}</Text>
+              <Text>{item.createdAt ? item.createdAt.toDate().toLocaleString() : 'N/A'}</Text>
               <TouchableOpacity onPress={() => console.log('edit')}>
                 <Text>Editar</Text>
               </TouchableOpacity>
@@ -122,16 +130,6 @@ const Index = ({ navigation }: { navigation: any }) => {
         </VStack>
       </ScrollView>
       <Box>
-        {/* <FlatList
-          data={items}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <HStack justifyContent="space-between" p={4} borderBottomWidth={1} borderBottomColor="#ccc">
-              <Text>{item.name}</Text>
-              <Text>{item.site}</Text>
-            </HStack>
-          )}
-        /> */}
         <Button position='absolute' m='$1.5' right={1} bottom={1} size="xl" w='$16' h='$16' rounded='$full'
           variant="solid" action="primary" isDisabled={false} isFocusVisible={true}
           onPress={() => setModalVisible(true)} >
@@ -155,8 +153,8 @@ const Index = ({ navigation }: { navigation: any }) => {
                 </Input>
               </Box>
               <Box mb={3}>
-                <Select>
-                  <SelectTrigger variant="underlined" size="md" >
+                <Select onValueChange={(value) => setSelectedSite(value)}>
+                  <SelectTrigger variant="underlined" size="md">
                     <SelectInput placeholder="Seleccionar sitio" />
                     <SelectIcon>
                       <Icon as={ChevronDownIcon} />

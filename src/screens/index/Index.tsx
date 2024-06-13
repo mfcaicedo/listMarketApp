@@ -215,7 +215,7 @@ const Index = ({ navigation }: { navigation: any }) => {
 
   };
 
-  cloneShppingList = async () => {
+  const cloneShppingList = async () => {
 
     console.log("clonar lista de compras");
 

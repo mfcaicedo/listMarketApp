@@ -40,7 +40,6 @@ const Login = ({ navigation }: { navigation: any }) => {
             const user = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
             navigation.navigate('Home');
             Alert.alert('Bienvenido', 'Inicio de sesión exitoso');
-            console.log(user);
         } catch (error) {
             Alert.alert('Error al iniciar sesión');
             console.log(error);

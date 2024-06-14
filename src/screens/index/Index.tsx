@@ -35,6 +35,10 @@ import {
   EditIcon,
   CheckIcon,
   TrashIcon,
+  useToast,
+  Toast,
+  ToastTitle,
+  ToastDescription,
 } from '@gluestack-ui/themed';
 import { config } from "@gluestack-ui/config";
 import { Alert, TouchableOpacity, FlatList, View, } from 'react-native';
@@ -256,231 +260,231 @@ const Index = ({ navigation }: { navigation: any }) => {
   }, []);
 
   return (
-    <GluestackUIProvider config={config}>
-      <GestureHandlerRootView>
-        <Box p='$1.5'>
-          <Heading>Tu lista de compras!</Heading>
-        </Box>
-        <HStack space="md" justifyContent='flex-end' pl='$1.5' pr='$1.5' mb='$2'>
-          <Button variant="solid" bgColor='#00293F' action="primary" onPress={cloneShoppingList}>
-            <ButtonText>Clonar Lista</ButtonText>
-          </Button>
-        </HStack>
-        <ScrollView h="$full" w="$full" pl='$1.5' pr='$1.5'>
-          <VStack flex={1} mb='$1.5'>
-            <HStack space="xl" justifyContent='space-between' reversed={false}>
-              <Text color='$black' bold>Nombre</Text>
-              <Text color='$black' bold>Sitio</Text>
-              <Text color='$black' bold>Acciones</Text>
-            </HStack>
-          </VStack>
-          <VStack flex={1}>
-            {shoppingList[0]?.products?.map((product, index) => (
-              <Swipeable key={index} renderRightActions={() =>
-                <Box w='$16' bg='$red500' justifyContent='center' alignItems='center' >
-                  <Icon as={TrashIcon} size="xl" color='$white' />
-                </Box>
-              }
-                onSwipeableRightOpen={() => handleDelete(product, shoppingList[0], index)}>
+    // <GluestackUIProvider config={config}>
+    <GestureHandlerRootView>
+      <Box p='$1.5'>
+        <Heading>Tu lista de compras!</Heading>
+      </Box>
+      <HStack space="md" justifyContent='flex-end' pl='$1.5' pr='$1.5' mb='$2'>
+        <Button variant="solid" bgColor='#00293F' action="primary" onPress={cloneShoppingList}>
+          <ButtonText>Clonar Lista</ButtonText>
+        </Button>
+      </HStack>
+      <ScrollView h="$full" w="$full" pl='$1.5' pr='$1.5'>
+        <VStack flex={1} mb='$1.5'>
+          <HStack space="xl" justifyContent='space-between' reversed={false}>
+            <Text color='$black' bold>Nombre</Text>
+            <Text color='$black' bold>Sitio</Text>
+            <Text color='$black' bold>Acciones</Text>
+          </HStack>
+        </VStack>
+        <VStack flex={1}>
+          {shoppingList[0]?.products?.map((product, index) => (
+            <Swipeable key={index} renderRightActions={() =>
+              <Box w='$16' bg='$red500' justifyContent='center' alignItems='center' >
+                <Icon as={TrashIcon} size="xl" color='$white' />
+              </Box>
+            }
+              onSwipeableRightOpen={() => handleDelete(product, shoppingList[0], index)}>
 
-                <TouchableOpacity key={index} onPress={() => handleTap(product, shoppingList[0], index)}>
-                  <Box bg={product.status === ProductStatus.BOUGHT ? '$blueGray300' : '$green200'} flexDirection='row'
-                    justifyContent='space-between' py='$4' pl='$1' mb='$1.5' rounded='$md'>
-                    <Box w='$40'>
-                      <Text strikeThrough={product.status === ProductStatus.BOUGHT ? true : false}>
-                        {product.name}
-                      </Text>
-                    </Box>
-                    <Box w='$32'>
-                      <Text strikeThrough={product.status === ProductStatus.BOUGHT ? true : false}>
-                        {product.site.name}
-                      </Text>
-                    </Box>
-                    <Box w='$16' alignItems='center'>
-                      {product.status === ProductStatus.BOUGHT ? (
-                        <Icon color='$green500' as={CheckIcon} size="xl" />
-                      ) : (
-                        <TouchableOpacity onPress={() => {
-                          setModalVisibleUpdate(true)
-                          setNewItem(product.name)
-                          setNewItemId(product.id)
-                          setSelectedSite(product.site.name)
-                        }
-                          // updateProduct(product, shoppingList[0], index)
-                        }>
-                          <Icon as={EditIcon} size="xl" />
-                        </TouchableOpacity>
-                      )}
-                    </Box>
+              <TouchableOpacity key={index} onPress={() => handleTap(product, shoppingList[0], index)}>
+                <Box bg={product.status === ProductStatus.BOUGHT ? '$blueGray300' : '$green200'} flexDirection='row'
+                  justifyContent='space-between' py='$4' pl='$1' mb='$1.5' rounded='$md'>
+                  <Box w='$40'>
+                    <Text strikeThrough={product.status === ProductStatus.BOUGHT ? true : false}>
+                      {product.name}
+                    </Text>
                   </Box>
-                </TouchableOpacity>
-              </Swipeable>
-            ))}
-          </VStack>
-        </ScrollView>
-        <Box>
-          <Button position='absolute' m='$1.5' right={1} bottom={1} size="xl" w='$16' h='$16' rounded='$full'
-            variant="solid" bgColor='#00293F' action="primary" isDisabled={false} isFocusVisible={true}
-            onPress={() => setModalVisible(true)} >
-            <ButtonIcon as={AddIcon} />
-          </Button>
+                  <Box w='$32'>
+                    <Text strikeThrough={product.status === ProductStatus.BOUGHT ? true : false}>
+                      {product.site.name}
+                    </Text>
+                  </Box>
+                  <Box w='$16' alignItems='center'>
+                    {product.status === ProductStatus.BOUGHT ? (
+                      <Icon color='$green500' as={CheckIcon} size="xl" />
+                    ) : (
+                      <TouchableOpacity onPress={() => {
+                        setModalVisibleUpdate(true)
+                        setNewItem(product.name)
+                        setNewItemId(product.id)
+                        setSelectedSite(product.site.name)
+                      }
+                        // updateProduct(product, shoppingList[0], index)
+                      }>
+                        <Icon as={EditIcon} size="xl" />
+                      </TouchableOpacity>
+                    )}
+                  </Box>
+                </Box>
+              </TouchableOpacity>
+            </Swipeable>
+          ))}
+        </VStack>
+      </ScrollView>
+      <Box>
+        <Button position='absolute' m='$1.5' right={1} bottom={1} size="xl" w='$16' h='$16' rounded='$full'
+          variant="solid" bgColor='#00293F' action="primary" isDisabled={false} isFocusVisible={true}
+          onPress={() => setModalVisible(true)} >
+          <ButtonIcon as={AddIcon} />
+        </Button>
 
-          <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-            <ModalContent>
-              <ModalHeader>
-                <Heading>Crea tu nuevo producto</Heading>
-              </ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Box mb={3}>
-                  <Input variant="underlined">
-                    <InputField
-                      placeholder="Nombre del producto"
-                      value={newItem}
-                      onChangeText={setNewItem}
-                    />
-                  </Input>
-                </Box>
-                <Box mb='$1' justifyContent='space-between' flexDirection='row' >
-                  <Select w='$56' onValueChange={(value) => setSelectedSite(value)}>
-                    <SelectTrigger variant="underlined" size="md" >
-                      <SelectInput placeholder="Seleccionar sitio" />
-                      <SelectIcon>
-                        <Icon as={ChevronDownIcon} />
-                      </SelectIcon>
-                    </SelectTrigger>
-                    <SelectPortal>
-                      <SelectBackdrop />
-                      <SelectContent>
-                        <SelectDragIndicatorWrapper>
-                          <SelectDragIndicator />
-                        </SelectDragIndicatorWrapper>
-                        {sites.map((site, index) => (
-                          <SelectItem key={index} value={site.name} label={site.name}>
-                            <Text>{site.name}</Text>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </SelectPortal>
-                  </Select>
-                  <Button w='$10' h='$10' bgColor='#00293F' rounded='$full' variant="solid" action="primary" size='md' onPress={() => setSiteModalVisible(true)} mt={2}>
-                    <ButtonIcon as={AddIcon} />
-                  </Button>
-                </Box>
-                <HStack space="md">
-                  <Button variant='solid' bgColor='#00293F' action='primary' flex={1}
-                    onPress={addProductShoppingList} isDisabled={
-                      newItem === '' || selectedSite === '' ? true : false
+        <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+          <ModalContent>
+            <ModalHeader>
+              <Heading>Crea tu nuevo producto</Heading>
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Box mb={3}>
+                <Input variant="underlined">
+                  <InputField
+                    placeholder="Nombre del producto"
+                    value={newItem}
+                    onChangeText={setNewItem}
+                  />
+                </Input>
+              </Box>
+              <Box mb='$1' justifyContent='space-between' flexDirection='row' >
+                <Select w='$56' onValueChange={(value) => setSelectedSite(value)}>
+                  <SelectTrigger variant="underlined" size="md" >
+                    <SelectInput placeholder="Seleccionar sitio" />
+                    <SelectIcon>
+                      <Icon as={ChevronDownIcon} />
+                    </SelectIcon>
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectBackdrop />
+                    <SelectContent>
+                      <SelectDragIndicatorWrapper>
+                        <SelectDragIndicator />
+                      </SelectDragIndicatorWrapper>
+                      {sites.map((site, index) => (
+                        <SelectItem key={index} value={site.name} label={site.name}>
+                          <Text>{site.name}</Text>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </SelectPortal>
+                </Select>
+                <Button w='$10' h='$10' bgColor='#00293F' rounded='$full' variant="solid" action="primary" size='md' onPress={() => setSiteModalVisible(true)} mt={2}>
+                  <ButtonIcon as={AddIcon} />
+                </Button>
+              </Box>
+              <HStack space="md">
+                <Button variant='solid' bgColor='#00293F' action='primary' flex={1}
+                  onPress={addProductShoppingList} isDisabled={
+                    newItem === '' || selectedSite === '' ? true : false
 
-                    } >
-                    <ButtonText>Guardar</ButtonText>
-                  </Button>
-                  <Button variant="outline" flex={1} action="secondary" onPress={() => {
-                    setModalVisible(false)
-                    setNewItem('')
-                    setNewItemId('')
-                    setSelectedSite('')
-                  }} >
-                    <ButtonText>Cancelar</ButtonText>
-                  </Button>
-                </HStack>
-              </ModalBody>
-            </ModalContent>
-          </Modal>
+                  } >
+                  <ButtonText>Guardar</ButtonText>
+                </Button>
+                <Button variant="outline" flex={1} action="secondary" onPress={() => {
+                  setModalVisible(false)
+                  setNewItem('')
+                  setNewItemId('')
+                  setSelectedSite('')
+                }} >
+                  <ButtonText>Cancelar</ButtonText>
+                </Button>
+              </HStack>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
 
-          <Modal isOpen={modalVisibleUpdate} onClose={() => setModalVisibleUpdate(false)}>
-            <ModalContent>
-              <ModalHeader>
-                <Heading>Actualiza el producto seleccionado</Heading>
-              </ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Box mb={3}>
-                  <Input variant="underlined">
-                    <InputField
-                      placeholder="Nombre del producto"
-                      value={newItem}
-                      onChangeText={setNewItem}
-                    />
-                  </Input>
-                </Box>
-                <Box mb='$1' justifyContent='space-between' flexDirection='row' >
-                  <Select w='$56' onValueChange={(value) => setSelectedSite(value)} initialLabel={selectedSite}>
-                    <SelectTrigger variant="underlined" size="md" >
-                      <SelectInput placeholder="Seleccionar sitio" />
-                      <SelectIcon>
-                        <Icon as={ChevronDownIcon} />
-                      </SelectIcon>
-                    </SelectTrigger>
-                    <SelectPortal>
-                      <SelectBackdrop />
-                      <SelectContent>
-                        <SelectDragIndicatorWrapper>
-                          <SelectDragIndicator />
-                        </SelectDragIndicatorWrapper>
-                        {sites.map((site, index) => (
-                          <SelectItem key={index} value={site.name} label={site.name}>
-                            <Text>{site.name}</Text>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </SelectPortal>
-                  </Select>
-                  <Button w='$10' h='$10' rounded='$full' variant="solid" action="primary" size='md' onPress={() => setSiteModalVisible(true)} mt={2}>
-                    <ButtonIcon as={AddIcon} />
-                  </Button>
-                </Box>
-                <HStack space="md">
-                  <Button variant='solid' action='primary' bgColor='#00293F' onPress={() => updateProduct()} flex={1}>
-                    <ButtonText>Guardar</ButtonText>
-                  </Button>
-                  <Button variant="outline" action="secondary" flex={1} onPress={() => {
-                    setNewItem('')
-                    setNewItemId('')
-                    setSelectedSite('')
-                    setModalVisibleUpdate(false)
-                  }} >
-                    <ButtonText>Cancelar</ButtonText>
-                  </Button>
-                </HStack>
-              </ModalBody>
-            </ModalContent>
-          </Modal>
+        <Modal isOpen={modalVisibleUpdate} onClose={() => setModalVisibleUpdate(false)}>
+          <ModalContent>
+            <ModalHeader>
+              <Heading>Actualiza el producto seleccionado</Heading>
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Box mb={3}>
+                <Input variant="underlined">
+                  <InputField
+                    placeholder="Nombre del producto"
+                    value={newItem}
+                    onChangeText={setNewItem}
+                  />
+                </Input>
+              </Box>
+              <Box mb='$1' justifyContent='space-between' flexDirection='row' >
+                <Select w='$56' onValueChange={(value) => setSelectedSite(value)} initialLabel={selectedSite}>
+                  <SelectTrigger variant="underlined" size="md" >
+                    <SelectInput placeholder="Seleccionar sitio" />
+                    <SelectIcon>
+                      <Icon as={ChevronDownIcon} />
+                    </SelectIcon>
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectBackdrop />
+                    <SelectContent>
+                      <SelectDragIndicatorWrapper>
+                        <SelectDragIndicator />
+                      </SelectDragIndicatorWrapper>
+                      {sites.map((site, index) => (
+                        <SelectItem key={index} value={site.name} label={site.name}>
+                          <Text>{site.name}</Text>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </SelectPortal>
+                </Select>
+                <Button w='$10' h='$10' rounded='$full' variant="solid" action="primary" size='md' onPress={() => setSiteModalVisible(true)} mt={2}>
+                  <ButtonIcon as={AddIcon} />
+                </Button>
+              </Box>
+              <HStack space="md">
+                <Button variant='solid' action='primary' bgColor='#00293F' onPress={() => updateProduct()} flex={1}>
+                  <ButtonText>Guardar</ButtonText>
+                </Button>
+                <Button variant="outline" action="secondary" flex={1} onPress={() => {
+                  setNewItem('')
+                  setNewItemId('')
+                  setSelectedSite('')
+                  setModalVisibleUpdate(false)
+                }} >
+                  <ButtonText>Cancelar</ButtonText>
+                </Button>
+              </HStack>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
 
-          <Modal isOpen={siteModalVisible} onClose={() => setSiteModalVisible(false)}>
-            <ModalContent>
-              <ModalHeader>
-                <Heading>Crea un nuevo Sitio</Heading>
-              </ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Box mb={3}>
-                  <Input variant="underlined">
-                    <InputField
-                      placeholder="Nombre del sitio"
-                      value={newSiteName}
-                      onChangeText={setNewSiteName}
-                    />
-                  </Input>
-                </Box>
-                <HStack space="md">
-                  <Button flex={1} variant='solid' bgColor='#00293F' action='primary' size='md' onPress={addSite} mb={3}
-                    isDisabled={newSiteName === '' ? true : false}>
-                    <ButtonText>Guardar</ButtonText>
-                  </Button>
-                  <Button flex={1} variant="outline" action="secondary" onPress={() => {
-                    setNewSiteName('')
-                    setSiteModalVisible(false)
-                  }}>
-                    <ButtonText>Cancelar</ButtonText>
-                  </Button>
-                </HStack>
-              </ModalBody>
-            </ModalContent>
-          </Modal>
-        </Box>
-      </GestureHandlerRootView>
-    </GluestackUIProvider>
+        <Modal isOpen={siteModalVisible} onClose={() => setSiteModalVisible(false)}>
+          <ModalContent>
+            <ModalHeader>
+              <Heading>Crea un nuevo Sitio</Heading>
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Box mb={3}>
+                <Input variant="underlined">
+                  <InputField
+                    placeholder="Nombre del sitio"
+                    value={newSiteName}
+                    onChangeText={setNewSiteName}
+                  />
+                </Input>
+              </Box>
+              <HStack space="md">
+                <Button flex={1} variant='solid' bgColor='#00293F' action='primary' size='md' onPress={addSite} mb={3}
+                  isDisabled={newSiteName === '' ? true : false}>
+                  <ButtonText>Guardar</ButtonText>
+                </Button>
+                <Button flex={1} variant="outline" action="secondary" onPress={() => {
+                  setNewSiteName('')
+                  setSiteModalVisible(false)
+                }}>
+                  <ButtonText>Cancelar</ButtonText>
+                </Button>
+              </HStack>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </Box>
+    </GestureHandlerRootView>
+    // </GluestackUIProvider>
   );
 };
 

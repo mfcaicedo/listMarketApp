@@ -46,7 +46,17 @@ const NavigationApp = () => {
                 <Stack.Screen
                     name="Home"
                     component={Index}
-                    options={{ title: 'Compras', headerBackVisible: false, headerBackTitle: ''}}
+                    options={
+                        { 
+                            title: 'Compras', 
+                            headerBackVisible: false,
+                            headerLeft: (props) => <CustomHeaderMenu navigation={Stack.Navigator}  />,
+                            headerStyle: {
+                                backgroundColor: '#00293F',
+                            },
+                            headerTintColor: '#ffffff',
+                    }
+                    }
                 />
 
             </Stack.Navigator>
